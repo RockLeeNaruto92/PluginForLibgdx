@@ -4,6 +4,7 @@ import org.eclipse.core.resources.IContainer;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.Path;
+import org.eclipse.jdt.internal.ui.refactoring.MessageWizardPage;
 import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.jface.wizard.WizardPage;
@@ -12,11 +13,13 @@ import org.eclipse.swt.events.ModifyEvent;
 import org.eclipse.swt.events.ModifyListener;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
+import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Label;
+import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
 import org.eclipse.ui.dialogs.ContainerSelectionDialog;
 
@@ -31,6 +34,8 @@ public class NewLibgdxProjectCreationPage extends WizardPage {
 	private static String WIZARD_PAGE_TITLE = "Create new libgdx project";
 	private static String WIZARD_PAGE_DESCRIPTION = "This wizard creates new libgdx project.";
 	
+	private static int NUMBER_OF_INPUT_FIELD = 6;
+	
 	private static String LABEL_PROJECT_NAME = "Project Name";
 	private static String LABEL_PROJECT_MAIN_PACKAGE = "Package";
 	private static String LABEL_PROJECT_MAIN_CLASS = "Game class";
@@ -41,16 +46,14 @@ public class NewLibgdxProjectCreationPage extends WizardPage {
 	private String DEFAULT_PROJECT_NAME = "NewLibgdxGameProject";
 	private String DEFAULT_PROJECT_MAIN_PACKAGE="your.libgdx.project";
 	private String DEFAULT_PROJECT_MAIN_CLASS = "GameClass";
-	private String DEFAULT_PROJECT_DESTIONATION_FOLDER;
-	private boolean isCreateDesktopProject = false;
+	private String DEFAULT_PROJECT_DESTIONATION_FOLDER = "/home/superman/PluginExample";	
 	
+	private boolean isCreateDesktopProject = false;
 	private Text textProjectNameContainer;
 	private Text textProjectMainPackageContainer;
 	private Text textProjectMainClassContainer;
 	private Text textProjectDestinationFolder;
-	private Text containerText;
-
-	private Text fileText;
+	private Button checkboxDesktopVersion;
 
 	private ISelection selection;
 
@@ -71,11 +74,13 @@ public class NewLibgdxProjectCreationPage extends WizardPage {
 	 * @see IDialogPage#createControl(Composite)
 	 */
 	public void createControl(Composite parent) {
-		Composite container = new Composite(parent, SWT.NULL);
-		GridLayout layout = new GridLayout();
-		container.setLayout(layout);
+		Composite container = new Composite(parent, SWT.NONE);
+		
+		GridLayout layout = new GridLayout(NUMBER_OF_INPUT_FIELD, false);
 		layout.numColumns = 3;
 		layout.verticalSpacing = 9;
+		container.setLayoutData(new GridData(SWT.FILL));
+		container.setLayout(layout);
 		
 		createNameInputText(container);
 		createMainPackageInputText(container);
@@ -107,6 +112,8 @@ public class NewLibgdxProjectCreationPage extends WizardPage {
 				dialogChanged();
 			}
 		});
+		
+		label = new Label(container, SWT.NULL);
 	}
 	
 	/**
@@ -119,6 +126,7 @@ public class NewLibgdxProjectCreationPage extends WizardPage {
 
 		GridData gd = new GridData(GridData.FILL_HORIZONTAL);
 		
+		textProjectMainPackageContainer = new Text(container, SWT.BORDER | SWT.SINGLE);
 		textProjectMainPackageContainer.setLayoutData(gd);
 		textProjectMainPackageContainer.setText(DEFAULT_PROJECT_MAIN_PACKAGE);
 		textProjectMainPackageContainer.addModifyListener(new ModifyListener() {
@@ -126,6 +134,8 @@ public class NewLibgdxProjectCreationPage extends WizardPage {
 				dialogChanged();
 			}
 		});
+		
+		label = new Label(container, SWT.NULL);
 	}
 	
 	
@@ -139,6 +149,7 @@ public class NewLibgdxProjectCreationPage extends WizardPage {
 		
 		GridData gd = new GridData(GridData.FILL_HORIZONTAL);
 		
+		textProjectMainClassContainer = new Text(container, SWT.BORDER | SWT.SINGLE);
 		textProjectMainClassContainer.setLayoutData(gd);
 		textProjectMainClassContainer.setText(DEFAULT_PROJECT_MAIN_CLASS);
 		textProjectMainClassContainer.addModifyListener(new ModifyListener() {
@@ -147,13 +158,7 @@ public class NewLibgdxProjectCreationPage extends WizardPage {
 			}
 		});
 		
-		Button button = new Button(container, SWT.PUSH);
-		button.setText(LABEL_BUTTON_BROWSE);
-		button.addSelectionListener(new SelectionAdapter() {
-			public void widgetSelected(SelectionEvent e) {
-				handleBrowse();
-			}
-		});
+		label = new Label(container, SWT.NULL);
 	}
 	
 	/**
@@ -166,6 +171,7 @@ public class NewLibgdxProjectCreationPage extends WizardPage {
 		
 		GridData gd = new GridData(GridData.FILL_HORIZONTAL);
 		
+		textProjectDestinationFolder = new Text(container, SWT.BORDER | SWT.SINGLE);
 		textProjectDestinationFolder.setLayoutData(gd);
 		textProjectDestinationFolder.setText(DEFAULT_PROJECT_DESTIONATION_FOLDER);
 		textProjectDestinationFolder.addModifyListener(new ModifyListener() {
@@ -174,6 +180,14 @@ public class NewLibgdxProjectCreationPage extends WizardPage {
 			}
 		});
 		
+		Button button = new Button(container, SWT.PUSH);
+		button.setText(LABEL_BUTTON_BROWSE);
+		button.addSelectionListener(new SelectionAdapter() {
+			public void widgetSelected(SelectionEvent e) {
+				handleBrowse();
+			}
+		});
+
 	}
 	
 	/**
@@ -181,7 +195,22 @@ public class NewLibgdxProjectCreationPage extends WizardPage {
 	 * @param container
 	 */
 	private void createDesktopVersionCheckbox(Composite container){
+		Label label = new Label(container, SWT.NULL);
+		label.setText(LABEL_DESKTOP_PROJECT);
 		
+		GridData gd = new GridData(GridData.FILL_HORIZONTAL);
+		
+		checkboxDesktopVersion = new Button(container, SWT.CHECK);
+		checkboxDesktopVersion.setLayoutData(gd);
+		checkboxDesktopVersion.addSelectionListener(new SelectionAdapter() {
+
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				// TODO Auto-generated method stub
+				super.widgetSelected(e);
+				isCreateDesktopProject = checkboxDesktopVersion.getSelection();
+			}
+		});
 	}
 
 	/**
@@ -217,7 +246,7 @@ public class NewLibgdxProjectCreationPage extends WizardPage {
 		if (dialog.open() == ContainerSelectionDialog.OK) {
 			Object[] result = dialog.getResult();
 			if (result.length == 1) {
-				containerText.setText(((Path) result[0]).toString());
+//				containerText.setText(((Path) result[0]).toString());
 			}
 		}
 	}
@@ -227,41 +256,8 @@ public class NewLibgdxProjectCreationPage extends WizardPage {
 	 */
 
 	private void dialogChanged() {
-		IResource container = ResourcesPlugin.getWorkspace().getRoot()
-				.findMember(new Path(getProjectName()));
-
-//		if (getContainerName().length() == 0) {
-//			updateStatus("File container must be specified");
-//			return;
-//		}
-//		if (container == null
-//				|| (container.getType() & (IResource.PROJECT | IResource.FOLDER)) == 0) {
-//			updateStatus("File container must exist");
-//			return;
-//		}
-//		if (!container.isAccessible()) {
-//			updateStatus("Project must be writable");
-//			return;
-//		}
-//		if (fileName.length() == 0) {
-//			updateStatus("File name must be specified");
-//			return;
-//		}
-//		if (fileName.replace('\\', '/').indexOf('/', 1) > 0) {
-//			updateStatus("File name must be valid");
-//			return;
-//		}
-//		int dotLoc = fileName.lastIndexOf('.');
-//		if (dotLoc != -1) {
-//			String ext = fileName.substring(dotLoc + 1);
-//			if (ext.equalsIgnoreCase("mpe") == false) {
-//				updateStatus("File extension must be \"mpe\"");
-//				return;
-//			}
-//		}
-		
-		
-		updateStatus(null);
+		if (isValidProjectName() && isValidProjectMainPackage() && isValidProjectMainClass() && isValidProjectDestinationFolder())
+			updateStatus(null);
 	}
 
 	private void updateStatus(String message) {
@@ -273,18 +269,73 @@ public class NewLibgdxProjectCreationPage extends WizardPage {
 	 * Check inputed project name
 	 */
 	boolean isValidProjectName(){
+		String projectName = getProjectName();
+		
+		if (projectName.length() == 0){
+			updateStatus(Message.PROJECT_NAME_IS_NULL);
+			return false;
+		}
+		
+		if (projectName.contains("'.,:?;")){
+			updateStatus(Message.PROJECT_NAME_CONTAINS_INVALID_CHARACTER);
+			return false;
+		}
+		
 		return true;
 	}
 	
 	boolean isValidProjectMainPackage(){
+		String projectMainPackage = getProjectMainPackage();
+		
+		if  (projectMainPackage.length() == 0){
+			updateStatus(Message.PROJECT_MAIN_PACKAGE_IS_NULL);
+			return false;
+		}
+		
+		if (projectMainPackage.contains(",?:;")){
+			updateStatus(Message.PROJECT_MAIN_PACKAGE_CONTAINS_INVALID_CHARACTER);
+			return false;
+		}
+		
+		if (projectMainPackage.endsWith(".")){
+			updateStatus(Message.PROJECT_MAIN_PACKAGE_ENDS_BY_DOT_CHACRACTER);
+			return false;
+		}
 		return true;
 	}
 	
 	boolean isValidProjectMainClass(){
+		String projectMainClass = getProjectMainClass();
+		
+		if (projectMainClass.length() == 0){
+			updateStatus(Message.PROJECT_MAIN_CLASS_IS_NULL);
+			return false;
+		}
+		
+		if (projectMainClass.contains("?:.,")){
+			updateStatus(Message.PROJECT_MAIN_CLASS_CONTAINS_INVALID_CHARACTER);
+			return false;
+		}
+		
+		if (!Character.isUpperCase(projectMainClass.charAt(0))){
+			updateStatus(Message.PROJECT_MAIN_CLASS_BEGINS_WITH_LOWERCASE_CHARACTER);
+			return false;
+		}
 		return true;
 	}
 	
 	boolean isValidProjectDestinationFolder(){
+		String projectDestinationFolder = getProjectDestinationFolder();
+		
+		if (projectDestinationFolder.length() == 0){
+			updateStatus(Message.PROJECT_DESTINATION_FOLDER_IS_NULL);
+			return false;
+		}
+		
+		// TODO
+		// Check destination folder exist
+		// TODO
+		
 		return true;
 	}
 	
