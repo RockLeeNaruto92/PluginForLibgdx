@@ -1,0 +1,3 @@
+
+a#PluginForLibgdx-introLink img { background-image : url(graphics/sample.gif); }
+a#PluginForLibgdx-introLink:hover img { background-image : url(graphics/sample_hov.gif); }
