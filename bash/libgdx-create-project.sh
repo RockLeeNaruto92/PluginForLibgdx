@@ -3,10 +3,12 @@ PROJECT_PARENT_FOLDER=/home/superman/commandLineUsing
 PROJECT_PATTERN_FOLDER=$PROJECT_PARENT_FOLDER/pattern
 PROJECT_NAME=MyLibgdxGame
 PROJECT_MAIN_PACKAGE=your.company.package
-PROJECT_MAIN_CLASS=MainClass.class
+PROJECT_MAIN_CLASS=LibgdxGame
 
 PATTERN_GWT_XML_FILE=$PROJECT_PATTERN_FOLDER/PROJECT_NAME.gwt.xml
 PATTERN_SRC_PATH=com/me/mygdxgame
+PATTERN_MAIN_JAVA_FILE=$PROJECT_PATTERN_FOLDER/MyGdxGame.java
+PATTERN_MAIN_PACKAGE_NAME=com.me.mygdxgame
 
 LIBGDX_PATH=/home/superman/commandLineUsing/libgdx-nightly-latest
 LIBGDX_GDX_SOURCES_JAR_FILE_PATH=$LIBGDX_PATH/sources/gdx-sources.jar
@@ -82,6 +84,7 @@ function createCoreProject {
 	cd $PROJECT_PARENT_FOLDER/$PROJECT_NAME/src
 	cp $PROJECT_PARENT_FOLDER/$PROJECT_NAME/bin/$PROJECT_NAME.gwt.xml ./
 	createFolderStructure $2
+	createMainClassJavaFile $PROJECT_MAIN_CLASS $PROJECT_MAIN_PACKAGE 
 }
 
 # Function create project_name.gwt.xml fileContent
@@ -96,9 +99,24 @@ function createGwtXmlFile {
   fileContent="${fileContent/"$PATTERN_SRC_PATH"/$srcPath}"
   echo $fileContent > $fileName
 }
+
+# Create main class of project
+# Param:
+#   $1: class name
+#   $2: package name
+#   $3: src path
+function createMainClassJavaFile {
+  className=$1
+  packageName=$2
+  fileName=$className.java
+
+  fileContent=$(<$PATTERN_MAIN_JAVA_FILE)
+  fileContent=${fileContent/"$PATTERN_MAIN_PACKAGE_NAME"/$packageName}
+  fileContent=${fileContent/"$PATTERN_MAIN_CLASS"/$className}
+  echo $fileContent > $fileName
+}
  
 ###############################################
 ############### MAIN  ########################
 
 createCoreProject $PROJECT_NAME $PROJECT_MAIN_PACKAGE
-
