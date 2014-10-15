@@ -48,7 +48,7 @@ public class NewLibgdxProjectCreationPage extends WizardPage {
 	private String DEFAULT_PROJECT_MAIN_CLASS = "GameClass";
 	private String DEFAULT_PROJECT_DESTIONATION_FOLDER = "/home/superman/PluginExample";	
 	
-	private boolean isCreateDesktopProject = false;
+	private boolean createDesktopProject = false;
 	private Text textProjectNameContainer;
 	private Text textProjectMainPackageContainer;
 	private Text textProjectMainClassContainer;
@@ -208,7 +208,7 @@ public class NewLibgdxProjectCreationPage extends WizardPage {
 			public void widgetSelected(SelectionEvent e) {
 				// TODO Auto-generated method stub
 				super.widgetSelected(e);
-				isCreateDesktopProject = checkboxDesktopVersion.getSelection();
+				createDesktopProject = checkboxDesktopVersion.getSelection();
 			}
 		});
 	}
@@ -356,5 +356,9 @@ public class NewLibgdxProjectCreationPage extends WizardPage {
 	
 	public String getProjectDestinationFolder(){
 		return textProjectDestinationFolder.getText();
+	}
+	
+	public boolean isCreateDesktopProject(){
+		return createDesktopProject;
 	}
 }
